@@ -20,6 +20,23 @@ export const MemeGame = () => {
     isGameOver,
   } = useGameState();
 
+  const getLetterClass = (letter: string, index: number, answer: string) => {
+    if (!answer) return "bg-gray-200";
+    
+    const normalizedLetter = letter.toLowerCase();
+    const normalizedAnswer = answer.toLowerCase();
+    
+    if (normalizedAnswer[index] === normalizedLetter) {
+      return "bg-green-500 text-white";
+    }
+    
+    if (normalizedAnswer.includes(normalizedLetter)) {
+      return "bg-yellow-500 text-white";
+    }
+    
+    return "bg-gray-400 text-white";
+  };
+
   if (!meme) return null;
 
   return (
@@ -32,16 +49,20 @@ export const MemeGame = () => {
         <p className="text-2xl text-center mb-6">{meme.question}</p>
 
         <div className="space-y-4 mb-6">
-          {guesses.map((guess, i) => (
-            <div
-              key={i}
-              className={`p-3 rounded-md text-center ${
-                guess.toLowerCase() === meme.answer.toLowerCase()
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              } animate-bounce-in`}
-            >
-              {guess}
+          {guesses.map((guess, guessIndex) => (
+            <div key={guessIndex} className="flex justify-center gap-1">
+              {guess.split('').map((letter, letterIndex) => (
+                <div
+                  key={`${guessIndex}-${letterIndex}`}
+                  className={`w-10 h-10 flex items-center justify-center font-bold rounded-md uppercase ${getLetterClass(
+                    letter,
+                    letterIndex,
+                    meme.answer
+                  )} animate-bounce-in`}
+                >
+                  {letter}
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -59,6 +80,7 @@ export const MemeGame = () => {
               onChange={(e) => setCurrentGuess(e.target.value)}
               placeholder="Enter your guess..."
               className="flex-1"
+              maxLength={meme.answer.length}
             />
             <Button type="submit">Guess</Button>
           </form>
